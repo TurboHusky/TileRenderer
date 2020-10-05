@@ -3,11 +3,13 @@
 
 int main()
 {
-	int window_x{ 128 }; // Test tex is 320 x 304
-	int window_y{ 128 };
+	int window_x{ 256 };
+	int window_y{ 256 };
+	int render_x{ 128 };
+	int render_y{ 128 };
 
-	Window main_window(window_x * 3, window_y * 3);
-	RenderEngine renderer(window_x, window_y);
+	Window main_window(window_x, window_y);
+	RenderEngine renderer(render_x, render_y);
 
 	while (main_window.open())
 	{

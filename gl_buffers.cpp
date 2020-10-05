@@ -7,14 +7,15 @@ Buffer::Buffer()
 
 Buffer::~Buffer()
 {
-	std::cout << "Buffer Destructor, ID: " << buffer_ID << std::endl;
 	glDeleteBuffers(1, &buffer_ID);
+	std::cout << "Buffer Destructor, ID: " << buffer_ID << std::endl;
 }
 
 void Buffer::init(GLenum buffer_type, GLsizeiptr size, const void* data, GLenum usage)
 {
 	glBindBuffer(buffer_type, buffer_ID);
-	glBufferData(buffer_type, size, data, usage);
+	glBufferData(buffer_type, size, data, usage); // Creates and initialises store. Should be in constructor, use glBufferSubData for updates
+
 	target = buffer_type;
 }
 
@@ -45,33 +46,29 @@ void Buffer::write(GLsizeiptr size, const void* data) const
 
 
 
-FrameBuffer::FrameBuffer()
+FrameBuffer::FrameBuffer(GLint width, GLint height, Texture::ColourMode format) : 
+	colour_buffer{ width, height, { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } }
 {
 	glGenFramebuffers(1, &frame_buffer_ID);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_ID);
+	colour_buffer.bind_texture();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	colour_buffer.attach_to_frame_buffer();
+	// No depth or stencil buffers used
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER::Incomplete buffer" << std::endl;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 FrameBuffer::~FrameBuffer()
 {
-	std::cout << "Frame Buffer Destructor, ID: " << frame_buffer_ID << std::endl;
 	glDeleteFramebuffers(1, &frame_buffer_ID);
-}
-
-void FrameBuffer::init(GLsizei width, GLsizei height) const
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_ID);
-	buffer_texture.bind_texture();
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL); // HACK -> NEED TO COPY FROM WINDOW
-
-	buffer_texture.attach_to_frame_buffer();
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	std::cout << "Frame Buffer Destructor, ID: " << frame_buffer_ID << std::endl;
 }
 
 void FrameBuffer::bind() const
@@ -81,7 +78,7 @@ void FrameBuffer::bind() const
 
 void FrameBuffer::bind_colour_buffer() const
 {
-	buffer_texture.bind_texture();
+	colour_buffer.bind_texture();
 }
 
 void FrameBuffer::unbind() const
@@ -98,8 +95,8 @@ VertexArray::VertexArray()
 
 VertexArray::~VertexArray()
 {
-	std::cout << "Vertex Array Destructor, ID: " << vertex_array_ID << std::endl;
 	glDeleteVertexArrays(1, &vertex_array_ID);
+	std::cout << "Vertex Array Destructor, ID: " << vertex_array_ID << std::endl;
 }
 
 void VertexArray::bind() const
@@ -117,13 +114,13 @@ void VertexArray::init(GLsizeiptr vertex_data_size, const void* vertex_data, GLs
 	glBindVertexArray(vertex_array_ID);
 
 	vertex_buffer.init(GL_ARRAY_BUFFER, vertex_data_size, vertex_data, usage);
-	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
-
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); // Position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); // Texture Coords
 	glEnableVertexAttribArray(1);
 
+	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
+	
 	glBindVertexArray(0);
 	vertex_buffer.unbind();
 	element_buffer.unbind();
@@ -136,13 +133,13 @@ void VertexArray::init_custom(GLsizeiptr vertex_data_size, const void* vertex_da
 	glBindVertexArray(vertex_array_ID);
 
 	vertex_buffer.init(GL_ARRAY_BUFFER, vertex_data_size, vertex_data, usage);
-	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
-
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // x coefficients
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // y coefficients
 	glEnableVertexAttribArray(1);
 
+	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
+	
 	glBindVertexArray(0);
 	vertex_buffer.unbind();
 	element_buffer.unbind();

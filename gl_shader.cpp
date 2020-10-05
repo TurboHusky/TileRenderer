@@ -40,14 +40,12 @@ static GLuint compile_shader(const char* shader_code, const GLint shader_type)
 	if (!success)
 	{
 		glGetShaderInfoLog(ID, 1024, NULL, infoLog);
-		std::cout << "ERROR::" << shader_type << "_COMPILATION_ERROR of type: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+		std::cout << "ERROR::" << shader_type << "::COMPILATION_ERROR of type: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 	}
 	return ID;
 }
 
-//Shader::Shader() : shader_ID{ 0 } {}
-
-Shader::Shader(const char* shader_path, const int shader_type) : shader_ID{ 0 }
+Shader::Shader(const char* shader_path, const GLint shader_type) : shader_ID{ 0 }
 {
 	std::string shaderCode = load_shader_code(shader_path);
 	shader_ID = compile_shader(shaderCode.c_str(), shader_type);
@@ -55,9 +53,8 @@ Shader::Shader(const char* shader_path, const int shader_type) : shader_ID{ 0 }
 
 Shader::~Shader()
 {
+	glDeleteShader(shader_ID);
 	std::cout << "Shader Destructor, ID: " << shader_ID << std::endl;
-	if(shader_ID != 0)
-		glDeleteShader(shader_ID);
 }
 
 void Shader::attach(const unsigned int program_ID) const
@@ -65,48 +62,30 @@ void Shader::attach(const unsigned int program_ID) const
 	glAttachShader(program_ID, shader_ID);
 }
 
-static GLuint build_program(const char* vertex_shader_path, const char* fragment_shader_path)
+Program::Program(const char* vertex_shader_path, const char* fragment_shader_path)
 {
 	Shader vertex_shader(vertex_shader_path, GL_VERTEX_SHADER);
 	Shader fragment_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
 
-	GLuint ID{ 0 };
 	GLint success;
 	GLchar infoLog[1024];
 
-	ID = glCreateProgram();
-	vertex_shader.attach(ID);
-	fragment_shader.attach(ID);
-	glLinkProgram(ID);
-	glGetProgramiv(ID, GL_LINK_STATUS, &success);
+	program_ID = glCreateProgram();
+	vertex_shader.attach(program_ID);
+	fragment_shader.attach(program_ID);
+	glLinkProgram(program_ID);
+	glGetProgramiv(program_ID, GL_LINK_STATUS, &success);
 	if (!success)
 	{
-		glGetProgramInfoLog(ID, 1024, NULL, infoLog);
-		std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+		glGetProgramInfoLog(program_ID, 1024, NULL, infoLog);
+		std::cout << "ERROR::PROGRAM::LINKING_ERROR of type: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 	}
-	
-	return ID;
 }
-
-Program::Program(const char* vertex_shader_path, const char* fragment_shader_path) : program_ID{ build_program(vertex_shader_path, fragment_shader_path) } {}
-
-/*Program::Program(Program& other) // Copy constructors no longer required
-{
-	this->program_ID = other.program_ID;
-}
-
-Program& Program::operator=(Program&& other) noexcept
-{
-	std::cout << "Shader Program R-value Copy Assignment" << std::endl;
-	std::swap(program_ID, other.program_ID);
-	return *this;
-}*/
 
 Program::~Program()
 {
 	std::cout << "Shader Program Destructor, ID: " << program_ID << std::endl;
-	if (program_ID != 0)
-		glDeleteProgram(program_ID);
+	glDeleteProgram(program_ID);
 }
 
 void Program::use(void) const
@@ -120,7 +99,7 @@ void Program::bind_uniform_block(const char* u_id, GLuint index) const
 	if (ubo_index != GL_INVALID_INDEX)
 		glUniformBlockBinding(program_ID, ubo_index, index);
 	else
-		std::cout << "ERROR::INVALID_BINDING_ID" << std::endl;
+		std::cout << "ERROR::PROGRAM::INVALID_BINDING_ID" << std::endl;
 }
 
 GLint Program::get_ubo_size(GLint binding_index) const

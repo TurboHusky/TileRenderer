@@ -1,41 +1,61 @@
 #include "gl_texture.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-Texture::Texture() 
+Texture::Texture(const char* image_path, const Texture_Settings settings)
 {
 	glGenTextures(1, &texture_ID);
+	load_image(image_path, settings);
+}
+
+Texture::Texture(const GLint tex_width, const GLint tex_height, const Texture_Settings settings) :
+	width{ tex_width }, 
+	height{ tex_height }
+{
+	glGenTextures(1, &texture_ID);
+	glBindTexture(GL_TEXTURE_2D, texture_ID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_horizontal);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, settings.wrap_vertical);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, settings.filter_min);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, settings.filter_mag);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, settings.mode, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL); // Allocate/reallocate memory
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture()
 {
 	glDeleteTextures(1, &texture_ID);
-	std::cout << "Texture Destructor, ID: " << texture_ID << std::endl;
+	std::cout << "Texture Destructor, " << width << "x" << height << ", ID: " << texture_ID << std::endl;
 }
 
-void Texture::load_image(const char* path, const Wrap wrap_mode, const Filter filter_mode) const
+void Texture::load_image(const char* path, const Texture_Settings settings) const
 {
-	glBindTexture(GL_TEXTURE_2D, texture_ID);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(wrap_mode));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(wrap_mode));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(filter_mode));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(filter_mode));
+	Image image(path);
+	ImageData image_data = image.get_image_data();
 
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (data)
+	if(image_data.data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, texture_ID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_horizontal);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, settings.wrap_vertical);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, settings.filter_min);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, settings.filter_mag);
+
+		if (image_data.width == width && image_data.height == height)
+		{				
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, image_data.format, GL_UNSIGNED_BYTE, image_data.data);				
+		}
+		else
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, settings.mode, image_data.width, image_data.height, 0, image_data.format, GL_UNSIGNED_BYTE, image_data.data);
+			width = image_data.width;
+			height = image_data.height;
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load image" << std::endl;
 	}
-	stbi_image_free(data);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::bind_texture() const

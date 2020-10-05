@@ -14,7 +14,12 @@ private:
 	GLenum target{ 0 };
 public:
 	Buffer();
+	Buffer(const Buffer&) = delete;
+	Buffer(Buffer&&) = delete;
+	Buffer& operator=(const Buffer&) = delete;
+	Buffer& operator=(Buffer&&) = delete;
 	~Buffer();
+
 	void bind_uniform_block(GLuint index) const; // Method is only for uniform buffer
 	void bind() const;
 	void unbind() const;
@@ -26,11 +31,15 @@ class FrameBuffer
 {
 private:
 	GLuint frame_buffer_ID{ 0 };
-	Texture buffer_texture;
+	Texture colour_buffer;
 public:
-	FrameBuffer();
+	FrameBuffer(GLint width, GLint height, Texture::ColourMode format);
+	FrameBuffer(const FrameBuffer&) = delete;
+	FrameBuffer(FrameBuffer&&) = delete;
+	FrameBuffer& operator=(const FrameBuffer&) = delete;
+	FrameBuffer& operator=(FrameBuffer&&) = delete;
 	~FrameBuffer();
-	void init(GLsizei width, GLsizei height) const; // REMOVE THIS
+
 	void bind() const;
 	void bind_colour_buffer() const;
 	void unbind() const;
@@ -45,7 +54,12 @@ private:
 	Buffer element_buffer;
 public:
 	VertexArray();
+	VertexArray(const VertexArray&) = delete;
+	VertexArray(VertexArray&&) = delete;
+	VertexArray& operator=(const VertexArray&) = delete;
+	VertexArray& operator=(VertexArray&&) = delete;
 	~VertexArray();
+
 	void bind() const;
 	void unbind() const;
 	// Need better way to intialise. These load data into buffers and set attributes, should pass attributes as struct for better flexibility.

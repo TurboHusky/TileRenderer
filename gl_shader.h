@@ -7,8 +7,11 @@ class Shader
 private:
 	unsigned int shader_ID{ 0 };
 public:
-	//Shader();
-	Shader(const char* shader_path, const int shader_type);
+	Shader(const char* shader_path, const GLint shader_type);
+	Shader(const Shader&) = delete;
+	Shader(Shader&&) = delete;
+	Shader& operator=(const Shader&) = delete;
+	Shader& operator=(Shader&&) = delete;
 	~Shader();
 
 	void attach(const unsigned int program_ID) const;
@@ -20,8 +23,10 @@ private:
 	unsigned int program_ID{ 0 };
 public:
 	Program(const char* vertex_shader_path, const char* fragment_shader_path);
-	//Program(const Program& other);
-	//Program& operator=(Program&& other);
+	Program(const Program&) = delete;
+	Program(Program&&) = delete;
+	Program& operator=(const Program&) = delete;
+	Program& operator=(Program&&) = delete;
 	~Program();
 
 	void use(void) const;
