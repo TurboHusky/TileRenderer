@@ -5,7 +5,7 @@ RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int s
 	height{ screen_height }, 
 	screen_position_old{ glm::uvec2(screen_width, screen_height) },
 	frame_buffer{ screen_width, screen_height, Texture::ColourMode::rgba },
-	tileset{ "resources/tileset.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } }
+	tileset{ "resources/38055.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } }
 {
 	float fullscreen[] = {
 		// position			// UV

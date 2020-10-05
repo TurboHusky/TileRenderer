@@ -1,8 +1,10 @@
 #pragma once
 
-#include "gl_buffers.h"
+#include "gl_buffer.h"
 #include "gl_texture.h"
 #include "gl_shader.h"
+#include "gl_vertexarray.h"
+#include "gl_framebuffer.h"
 
 class RenderEngine
 {
