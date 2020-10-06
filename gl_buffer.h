@@ -3,26 +3,33 @@
 #include "opengl.h"
 #include "gl_texture.h"
 
-/* Have different buffers
-	- GL_UNIFORM_BUFFER in render_engine 
-	- GL_ARRAY_BUFFER in Vertex Array
-	- GL_ELEMENT_ARRAY_BUFFER in Vertex Array */
-class Buffer // MAKE THIS BASE CLASS, EXTEND FOR ALTERNATE TARGETS
+
+class Buffer
 {
 private:
 	GLuint buffer_ID{ 0 };
 	GLenum target{ 0 };
 public:
-	Buffer();
+	Buffer(const GLenum buffer_type);
+	/*template<typename T>
+	Buffer(const GLenum buffer_type, const GLarrayWrapper<T>& buffer_data, const GLenum usage);*/
 	Buffer(const Buffer&) = delete;
-	Buffer(Buffer&&) = delete;
+	Buffer(Buffer&&);
 	Buffer& operator=(const Buffer&) = delete;
-	Buffer& operator=(Buffer&&) = delete;
+	Buffer& operator=(Buffer&&);
 	~Buffer();
 
-	void bind_uniform_block(GLuint index) const; // Method is only for uniform buffer
+	void bind_to_uniform_block(GLuint ubo_index) const; // Method only applies to uniform buffer?
 	void bind() const;
 	void unbind() const;
-	void init(GLenum buffer_type, GLsizeiptr size, const void* data, GLenum usage); // NEEDS TO BE SIMPLIFIED
-	void write(GLsizeiptr size, const void* data) const;
+	void load(const GLsizeiptr size, const GLenum usage, const void* data) const; // NEEDS TO BE SIMPLIFIED
+	//void write(const GLsizeiptr size, const void* data) const;
 };
+
+// Not currently used. Implement if needed
+/*template<typename T>
+inline Buffer::Buffer(const GLenum buffer_type, const GLarrayWrapper<T>& buffer_data, const GLenum usage) : target{ buffer_type }
+{
+	glGenBuffers(1, &buffer_ID);
+	load(buffer_data.size, usage, buffer_data.data);
+}*/

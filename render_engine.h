@@ -17,7 +17,7 @@ private:
 	VertexArray screen_mask;
 	VertexArray full_screen;
 	Texture tileset;
-	Buffer tile_map;
+	Buffer tile_map{ GL_UNIFORM_BUFFER };
 	FrameBuffer frame_buffer;
 	Program tile_shader{ "tile_shader.vert", "tile_shader.frag" };
 	Program screen_shader{ "screen.vert", "screen.frag" };

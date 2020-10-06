@@ -21,42 +21,24 @@ void VertexArray::unbind() const
 	glBindVertexArray(0);
 }
 
-void VertexArray::init(GLsizeiptr vertex_data_size, const void* vertex_data, GLsizeiptr element_data_size, const void* element_data, GLenum usage)
+void VertexArray::init(const GLsizeiptr v_size, const void* v_data, const GLsizeiptr e_size, const void* e_data, const GLenum usage, const std::vector<VertexAttribute> attribs)
 {
+	vertex_buffer.load(v_size, usage, v_data);
+	element_buffer.load(e_size, usage, e_data);
+
 	glBindVertexArray(vertex_array_ID);
-
-	vertex_buffer.init(GL_ARRAY_BUFFER, vertex_data_size, vertex_data, usage);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0); // Position
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); // Texture Coords
-	glEnableVertexAttribArray(1);
-
-	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
+	vertex_buffer.bind();
+	element_buffer.bind();
+	for (auto i = 0; i < attribs.size(); i++)
+	{
+		glVertexAttribPointer(i, attribs[i].size, attribs[i].type, attribs[i].normalized, attribs[i].stride, attribs[i].attribute_offset);
+		glEnableVertexAttribArray(i);
+	}
 
 	glBindVertexArray(0);
 	vertex_buffer.unbind();
 	element_buffer.unbind();
-
-	vertex_count = element_data_size;
-}
-
-void VertexArray::init_custom(GLsizeiptr vertex_data_size, const void* vertex_data, GLsizeiptr element_data_size, const void* element_data, GLenum usage)
-{
-	glBindVertexArray(vertex_array_ID);
-
-	vertex_buffer.init(GL_ARRAY_BUFFER, vertex_data_size, vertex_data, usage);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // x coefficients
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // y coefficients
-	glEnableVertexAttribArray(1);
-
-	element_buffer.init(GL_ELEMENT_ARRAY_BUFFER, element_data_size, element_data, usage);
-
-	glBindVertexArray(0);
-	vertex_buffer.unbind();
-	element_buffer.unbind();
-
-	vertex_count = element_data_size;
+	vertex_count = e_size;
 }
 
 void VertexArray::draw() const

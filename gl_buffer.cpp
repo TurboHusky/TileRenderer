@@ -1,8 +1,25 @@
 #include "gl_buffer.h"
+#include <utility>
 
-Buffer::Buffer()
+
+Buffer::Buffer(const GLenum buffer_type) :
+	target{ buffer_type }
 {
 	glGenBuffers(1, &buffer_ID);
+}
+
+Buffer::Buffer(Buffer&& other)
+{
+	std::swap(buffer_ID, other.buffer_ID);
+	std::swap(target, other.target);
+}
+
+Buffer& Buffer::operator=(Buffer&& other)
+{
+	std::swap(buffer_ID, other.buffer_ID);
+	std::swap(target, other.target);
+	
+	return other;
 }
 
 Buffer::~Buffer()
@@ -11,17 +28,16 @@ Buffer::~Buffer()
 	std::cout << "Buffer Destructor, ID: " << buffer_ID << std::endl;
 }
 
-void Buffer::init(GLenum buffer_type, GLsizeiptr size, const void* data, GLenum usage)
+void Buffer::load(const GLsizeiptr size, const GLenum usage, const void* data) const
 {
-	glBindBuffer(buffer_type, buffer_ID);
-	glBufferData(buffer_type, size, data, usage); // Creates and initialises store. Should be in constructor, use glBufferSubData for updates
-
-	target = buffer_type;
+	glBindBuffer(target, buffer_ID);
+	glBufferData(target, size, data, usage); // Creates and initialises store. Should be in constructor, use glBufferSubData for updates
 }
 
-void Buffer::bind_uniform_block(GLuint index) const
+void Buffer::bind_to_uniform_block(GLuint ubo_index) const
 {
-	glBindBufferBase(GL_UNIFORM_BUFFER, index, buffer_ID); // glBindBufferRange for part binding
+	// !! target must be valid, should check.
+	glBindBufferBase(GL_UNIFORM_BUFFER, ubo_index, buffer_ID); // glBindBufferRange to bind part of buffer
 }
 
 void Buffer::bind() const
@@ -34,12 +50,12 @@ void Buffer::unbind() const
 	glBindBuffer(target, 0);
 }
 
-// Originally calculated screen mask on CPU and updated vertex buffer. Calculations now performed in shader.
-void Buffer::write(GLsizeiptr size, const void* data) const
+// Unused Function for explicit CPU to GPU copies, no check on data size, unsafe.
+/*void Buffer::write(GLsizeiptr size, const void* data) const
 {
 	bind();
 	void* mem_ptr = glMapBuffer(target, GL_WRITE_ONLY);
-	memcpy(mem_ptr, data, size); // No check on data size, use with caution.
+	memcpy(mem_ptr, data, size);
 	glUnmapBuffer(target);
 	unbind();
-}
+}*/

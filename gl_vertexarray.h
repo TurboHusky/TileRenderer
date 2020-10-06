@@ -3,13 +3,23 @@
 #include "opengl.h"
 #include "gl_buffer.h"
 
+#include <vector>
+
+struct VertexAttribute {
+	GLint size;
+	GLenum type;
+	GLboolean normalized;
+	GLsizei stride;
+	const void* attribute_offset;
+};
+
 class VertexArray
 {
 private:
 	GLuint vertex_array_ID{ 0 };
 	GLuint vertex_count{ 0 };
-	Buffer vertex_buffer;
-	Buffer element_buffer;
+	Buffer vertex_buffer{ GL_ARRAY_BUFFER };
+	Buffer element_buffer{ GL_ELEMENT_ARRAY_BUFFER };
 public:
 	VertexArray();
 	VertexArray(const VertexArray&) = delete;
@@ -20,8 +30,14 @@ public:
 
 	void bind() const;
 	void unbind() const;
-	// Need better way to intialise. These load data into buffers and set attributes, should pass attributes as struct for better flexibility.
-	void init(GLsizeiptr vertex_data_size, const void* vertex_data, GLsizeiptr element_data_size, const void* element_data, GLenum usage);
-	void init_custom(GLsizeiptr vertex_data_size, const void* vertex_data, GLsizeiptr element_data_size, const void* element_data, GLenum usage);
+	void init(const GLsizeiptr v_size, const void* v_data, const GLsizeiptr e_size, const void* e_data, const GLenum usage, const std::vector<VertexAttribute> attribs);
+	template <typename V, typename E>
+	void init_new(const GLarrayWrapper<V>& vert, const GLarrayWrapper<E>& elem, const std::vector<VertexAttribute> attribs);
 	void draw() const;
 };
+
+template<typename V, typename E>
+inline void VertexArray::init_new(const GLarrayWrapper<V>& vert, const GLarrayWrapper<E>& elem, const std::vector<VertexAttribute> attribs)
+{
+	init(vert.size, vert.data, elem.size, elem.data, GL_STATIC_READ, attribs);
+}

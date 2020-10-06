@@ -4,8 +4,11 @@ RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int s
 	width{ screen_width }, 
 	height{ screen_height }, 
 	screen_position_old{ glm::uvec2(screen_width, screen_height) },
+	ubo_binding_index{ 0 },	
+	tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
 	frame_buffer{ screen_width, screen_height, Texture::ColourMode::rgba },
-	tileset{ "resources/38055.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } }
+	tile_shader{ "tile_shader.vert", "tile_shader.frag" },
+	screen_shader{ "screen.vert", "screen.frag" }
 {
 	float fullscreen[] = {
 		// position			// UV
@@ -14,12 +17,22 @@ RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int s
 		-1.0f, -1.0f,		0.0f, 0.0f,		// bottom left
 		-1.0f,  1.0f,		0.0f, 1.0f		// top left
 	};
+
 	unsigned int screen_indices[] = {
 		0, 1, 3,
 		1, 2, 3
 	};
-	full_screen.init(sizeof(fullscreen), &fullscreen, sizeof(screen_indices), &screen_indices, GL_STATIC_DRAW);
-	
+
+	GLarrayWrapper<float> fs_vert{ fullscreen };
+	GLarrayWrapper<unsigned int> fs_elem{ screen_indices };
+	std::vector<VertexAttribute> VAO_S
+	{
+		VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0 },
+		VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)) }
+	};
+
+	full_screen.init_new(fs_vert, fs_elem, VAO_S);
+
 	unsigned int screenmask_coefficients[] = {
 		// l, r, const				// b, t, const
 		 0u,  1u,  0u,				0u,  0u,  screen_height,
@@ -46,7 +59,16 @@ RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int s
 		8, 9, 11,
 		9, 10, 11
 	};
-	screen_mask.init_custom(sizeof(screenmask_coefficients), &screenmask_coefficients, sizeof(mask_indices), &mask_indices, GL_STATIC_READ);
+
+	GLarrayWrapper<unsigned int> sm_vert{ screenmask_coefficients };
+	GLarrayWrapper<unsigned int> sm_elem{ mask_indices };
+	std::vector<VertexAttribute> VAO_M
+	{
+		VertexAttribute{ 3, GL_UNSIGNED_INT, GL_FALSE, 6 * sizeof(unsigned int), (void*)0 },
+		VertexAttribute{ 3, GL_UNSIGNED_INT, GL_FALSE, 6 * sizeof(unsigned int), (void*)(3 * sizeof(unsigned int)) }
+	};
+
+	screen_mask.init_new(sm_vert, sm_elem, VAO_M);
 
 	// Test code, copies tilemap image
 	glm::uvec2 tile_indices[380];
@@ -59,8 +81,8 @@ RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int s
 	}
 
 	tile_shader.bind_uniform_block("tiles", ubo_binding_index);
-	tile_map.init(GL_UNIFORM_BUFFER, sizeof(tile_indices), tile_indices, GL_STATIC_READ);
-	tile_map.bind_uniform_block(ubo_binding_index);
+	tile_map.load(sizeof(tile_indices), GL_STATIC_READ, tile_indices);
+	tile_map.bind_to_uniform_block(ubo_binding_index);
 	tile_map.unbind();
 	
 	/*GLint temp = tile_shader.get_ubo_size(ubo_binding_index);
