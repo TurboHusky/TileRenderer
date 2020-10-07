@@ -6,23 +6,25 @@
 #include "gl_vertexarray.h"
 #include "gl_framebuffer.h"
 
-class RenderEngine
+namespace GLRender
 {
-private:
-	unsigned int width{ 0u };
-	unsigned int height{ 0u };
-	glm::uvec2 screen_position_old{ glm::uvec2(0u, 0u) };
-	GLuint ubo_binding_index{ 0 };
+	class RenderEngine
+	{
+	private:
+		unsigned int m_width{ 0u };
+		unsigned int m_height{ 0u };
+		glm::uvec2 m_screen_position_old{ glm::uvec2(0u, 0u) };
+		GLuint m_ubo_binding_index{ 0 };
 
-	VertexArray screen_mask;
-	VertexArray full_screen;
-	Texture tileset;
-	Buffer tile_map{ GL_UNIFORM_BUFFER };
-	FrameBuffer frame_buffer;
-	Program tile_shader{ "tile_shader.vert", "tile_shader.frag" };
-	Program screen_shader{ "screen.vert", "screen.frag" };
-public:
-	RenderEngine(const unsigned int screen_width, const unsigned int screen_height);
-	void render(const glm::uvec2 world_position);
-};
-
+		VertexArray m_screen_mask;
+		VertexArray m_full_screen;
+		Texture m_tileset;
+		Buffer m_tile_map{ GL_UNIFORM_BUFFER };
+		FrameBuffer m_frame_buffer;
+		Program m_tile_shader{ "tile_shader.vert", "tile_shader.frag" };
+		Program m_screen_shader{ "screen.vert", "screen.frag" };
+	public:
+		RenderEngine(const unsigned int screen_width, const unsigned int screen_height);
+		void render(const glm::uvec2 world_position);
+	};
+}

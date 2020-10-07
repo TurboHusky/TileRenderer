@@ -2,18 +2,21 @@
 
 #include "opengl.h"
 
-class Window {
-private:
-	int SCREEN_WIDTH{ 512 };
-	int SCREEN_HEIGHT{ 512 };
+namespace TileRender
+{
+	class Window {
+	private:
+		int m_width{ 512 };
+		int m_height{ 512 };
 
-	GLFWwindow* window;
+		GLFWwindow* m_window;
 
-public:
-	Window(const int width, const int height);
-	~Window();
+	public:
+		Window(const int width, const int height);
+		~Window();
 
-	glm::uvec2 world_position() const; // TEMP, implement later.
-	bool open() const;
-	void refresh() const;
-};
+		glm::uvec2 world_position() const; // TEMP, implement later.
+		bool open() const;
+		void refresh() const;
+	};
+}

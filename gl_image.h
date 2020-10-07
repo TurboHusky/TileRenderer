@@ -1,28 +1,31 @@
 #pragma once
 #include "opengl.h"
 
-struct ImageData
+namespace GLRender
 {
-	const int width;
-	const int height;
-	const GLint format;
-	const unsigned char* data;
-};
+	struct ImageData
+	{
+		const int width;
+		const int height;
+		const GLint format;
+		const unsigned char* data;
+	};
 
-class Image
-{
-private:
-	int image_width{ 0 };
-	int image_height{ 0 };
-	GLint GL_format{ GL_RGBA };
-	unsigned char* data;
-public:
-	Image(const char* path);
-	Image(const Image&) = delete;
-	Image(Image&&) = delete;
-	Image& operator=(const Image&) = delete;
-	Image& operator=(Image&&) = delete;
-	~Image();
+	class Image
+	{
+	private:
+		int m_width{ 0 };
+		int m_height{ 0 };
+		GLint m_colour_format{ GL_RGBA };
+		unsigned char* m_data;
+	public:
+		Image(const char* path);
+		Image(const Image&) = delete;
+		Image(Image&&) = delete;
+		Image& operator=(const Image&) = delete;
+		Image& operator=(Image&&) = delete;
+		~Image();
 
-	ImageData get_image_data() const;
-};
+		ImageData get_image_data() const;
+	};
+}

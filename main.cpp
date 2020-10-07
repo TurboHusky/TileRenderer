@@ -8,8 +8,8 @@ int main()
 	int render_x{ 128 };
 	int render_y{ 128 };
 
-	Window main_window(window_x, window_y);
-	RenderEngine renderer(render_x, render_y);
+	TileRender::Window main_window(window_x, window_y);
+	GLRender::RenderEngine renderer(render_x, render_y);
 
 	while (main_window.open())
 	{
