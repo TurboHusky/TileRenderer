@@ -7,7 +7,7 @@ namespace GLRender
 	class Shader
 	{
 	private:
-		unsigned int m_shader_ID{ 0 };
+		unsigned int m_shader_ID;
 	public:
 		Shader(const char* shader_path, const GLint shader_type);
 		Shader(const Shader&) = delete;
@@ -22,7 +22,7 @@ namespace GLRender
 	class Program
 	{
 	private:
-		unsigned int m_program_ID{ 0 };
+		unsigned int m_program_ID;
 	public:
 		Program(const char* vertex_shader_path, const char* fragment_shader_path);
 		Program(const Program&) = delete;

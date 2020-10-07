@@ -11,18 +11,18 @@ namespace GLRender
 	class RenderEngine
 	{
 	private:
-		unsigned int m_width{ 0u };
-		unsigned int m_height{ 0u };
-		glm::uvec2 m_screen_position_old{ glm::uvec2(0u, 0u) };
-		GLuint m_ubo_binding_index{ 0 };
+		unsigned int m_width;
+		unsigned int m_height;
+		glm::uvec2 m_screen_position_old;
+		GLuint m_ubo_binding_index;
 
-		VertexArray m_screen_mask;
-		VertexArray m_full_screen;
+		VertexArray m_bg_vao;
+		VertexArray m_screen_vao;
 		Texture m_tileset;
-		Buffer m_tile_map{ GL_UNIFORM_BUFFER };
+		Buffer m_tile_map;
 		FrameBuffer m_frame_buffer;
-		Program m_tile_shader{ "tile_shader.vert", "tile_shader.frag" };
-		Program m_screen_shader{ "screen.vert", "screen.frag" };
+		Program m_tile_shader;
+		Program m_screen_shader;
 	public:
 		RenderEngine(const unsigned int screen_width, const unsigned int screen_height);
 		void render(const glm::uvec2 world_position);

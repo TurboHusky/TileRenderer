@@ -3,8 +3,6 @@
 #include "opengl.h"
 #include "gl_buffer.h"
 
-#include <vector>
-
 namespace GLRender
 {
 	struct VertexAttribute {
@@ -18,10 +16,11 @@ namespace GLRender
 	class VertexArray
 	{
 	private:
-		GLuint m_vertex_array_ID{ 0 };
-		GLuint m_vertex_count{ 0 };
-		Buffer m_vertex_buffer{ GL_ARRAY_BUFFER };
-		Buffer m_element_buffer{ GL_ELEMENT_ARRAY_BUFFER };
+		GLuint m_vertex_array_ID;
+		GLuint m_vertex_count;
+		Buffer m_vertex_buffer;
+		Buffer m_element_buffer;
+		void set_attributes(const std::vector<VertexAttribute> attributes);
 	public:
 		VertexArray();
 		VertexArray(const VertexArray&) = delete;
@@ -32,15 +31,18 @@ namespace GLRender
 
 		void bind() const;
 		void unbind() const;
-		void init(const GLsizeiptr v_size, const void* v_data, const GLsizeiptr e_size, const void* e_data, const GLenum usage, const std::vector<VertexAttribute> attribs);
-		template <typename V, typename E>
-		void init_new(const GLarrayWrapper<V>& vert, const GLarrayWrapper<E>& elem, const std::vector<VertexAttribute> attribs);
+
+		template <typename T_v, size_t S_v, typename T_e, size_t S_e>
+		void load(const std::array<T_v, S_v>& vert, const std::array<T_e, S_e>& elem, const std::vector<VertexAttribute> attributes);
 		void draw() const;
 	};
 
-	template<typename V, typename E>
-	inline void VertexArray::init_new(const GLarrayWrapper<V>& vert, const GLarrayWrapper<E>& elem, const std::vector<VertexAttribute> attribs)
+	template<typename V, size_t SV, typename E, size_t SE>
+	inline void VertexArray::load(const std::array<V, SV>& vert, const std::array<E, SE>& elem, const std::vector<VertexAttribute> attributes)
 	{
-		init(vert.size, vert.data, elem.size, elem.data, GL_STATIC_READ, attribs);
+		m_vertex_count = sizeof(E) * SE;
+		m_vertex_buffer.load(vert, GL_STATIC_READ);
+		m_element_buffer.load(elem, GL_STATIC_READ);
+		set_attributes(attributes);
 	}
 }

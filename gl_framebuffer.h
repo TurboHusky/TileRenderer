@@ -8,10 +8,10 @@ namespace GLRender
 	class FrameBuffer
 	{
 	private:
-		GLuint m_frame_buffer_ID{ 0 };
+		GLuint m_frame_buffer_ID;
 		Texture m_colour_buffer;
 	public:
-		FrameBuffer(GLint width, GLint height, Texture::ColourMode format);
+		FrameBuffer(const GLint width, const GLint height, const Texture::ColourMode format);
 		FrameBuffer(const FrameBuffer&) = delete;
 		FrameBuffer(FrameBuffer&&) = delete;
 		FrameBuffer& operator=(const FrameBuffer&) = delete;

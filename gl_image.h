@@ -14,9 +14,9 @@ namespace GLRender
 	class Image
 	{
 	private:
-		int m_width{ 0 };
-		int m_height{ 0 };
-		GLint m_colour_format{ GL_RGBA };
+		int m_width;
+		int m_height;
+		GLint m_colour_format;
 		unsigned char* m_data;
 	public:
 		Image(const char* path);

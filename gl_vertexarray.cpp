@@ -2,7 +2,9 @@
 
 namespace GLRender
 {
-	VertexArray::VertexArray()
+	VertexArray::VertexArray() :
+		m_vertex_buffer{ GL_ARRAY_BUFFER },
+		m_element_buffer{ GL_ELEMENT_ARRAY_BUFFER }
 	{
 		glGenVertexArrays(1, &m_vertex_array_ID);
 	}
@@ -23,11 +25,8 @@ namespace GLRender
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::init(const GLsizeiptr v_size, const void* v_data, const GLsizeiptr e_size, const void* e_data, const GLenum usage, const std::vector<VertexAttribute> attribs)
+	void VertexArray::set_attributes(const std::vector<VertexAttribute> attribs)
 	{
-		m_vertex_buffer.load(v_size, usage, v_data);
-		m_element_buffer.load(e_size, usage, e_data);
-
 		glBindVertexArray(m_vertex_array_ID);
 		m_vertex_buffer.bind();
 		m_element_buffer.bind();
@@ -40,7 +39,6 @@ namespace GLRender
 		glBindVertexArray(0);
 		m_vertex_buffer.unbind();
 		m_element_buffer.unbind();
-		m_vertex_count = e_size;
 	}
 
 	void VertexArray::draw() const

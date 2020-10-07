@@ -7,10 +7,6 @@ namespace GLRender
 {
 	class Texture
 	{
-	private:
-		unsigned int m_texture_ID{ 0 };
-		mutable int m_width{ 0 };
-		mutable int m_height{ 0 };
 	public:
 		enum ColourMode {
 			r = GL_R8,
@@ -38,7 +34,11 @@ namespace GLRender
 			Filter filter_mag;
 			Filter filter_min;
 		};
-
+	private:
+		unsigned int m_texture_ID;
+		mutable int m_width;
+		mutable int m_height;
+	public:
 		Texture(const char* image_path, const Texture_Settings settings);
 		Texture(const GLint width, const GLint height, const Texture_Settings settings);
 		Texture(const Texture&) = delete;

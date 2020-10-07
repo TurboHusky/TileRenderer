@@ -6,8 +6,8 @@ namespace TileRender
 {
 	class Window {
 	private:
-		int m_width{ 512 };
-		int m_height{ 512 };
+		int m_width;
+		int m_height;
 
 		GLFWwindow* m_window;
 
