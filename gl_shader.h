@@ -21,7 +21,7 @@ namespace GLRender
 
 	class Program
 	{
-	private:
+	public: // DEBUG, MAKE PRIVATE
 		unsigned int m_program_ID;
 	public:
 		Program(const char* vertex_shader_path, const char* fragment_shader_path);

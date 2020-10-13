@@ -8,7 +8,7 @@ namespace GLRender
 		glGenFramebuffers(1, &m_frame_buffer_ID);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer_ID);
-		m_colour_buffer.bind_texture();
+		m_colour_buffer.bind();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -34,7 +34,7 @@ namespace GLRender
 
 	void FrameBuffer::bind_colour_buffer() const
 	{
-		m_colour_buffer.bind_texture();
+		m_colour_buffer.bind();
 	}
 
 	void FrameBuffer::unbind() const

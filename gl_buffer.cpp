@@ -3,11 +3,11 @@
 
 namespace GLRender
 {
-	void Buffer::load_buffer(const GLsizeiptr size, const void* data, const GLenum usage) const
+	void Buffer::m_load_buffer(const GLsizeiptr size, const void* data, const GLenum usage) const
 	{
-		glBindBuffer(m_target, m_buffer_ID);
 		// TODO: Add checks, resizing/reallocating function
-		glBufferData(m_target, size, data, usage);
+		glBindBuffer(m_target, m_buffer_ID);
+		glBufferData(m_target, size, data, usage); // glBufferSubData replaces part of existing buffer
 		glBindBuffer(m_target, 0);
 	}
 
@@ -26,7 +26,16 @@ namespace GLRender
 	void Buffer::bind_to_uniform_block(GLuint ubo_index) const
 	{
 		// TODO: Add check for valid target instead of using fixed GL_UNIFORM_BUFFER
+		glBindBuffer(m_target, m_buffer_ID);
 		glBindBufferBase(GL_UNIFORM_BUFFER, ubo_index, m_buffer_ID); // glBindBufferRange to bind part of buffer
+		glBindBuffer(m_target, 0);
+	}
+
+	void Buffer::bind_to_texture(GLenum format) const
+	{
+		glBindBuffer(m_target, m_buffer_ID);
+		glTexBuffer(GL_TEXTURE_BUFFER, format, m_buffer_ID);
+		glBindBuffer(m_target, 0);
 	}
 
 	void Buffer::bind() const
@@ -38,14 +47,4 @@ namespace GLRender
 	{
 		glBindBuffer(m_target, 0);
 	}
-
-	// Unused Function for explicit CPU to GPU copies, no check on data size, unsafe.
-	/*void Buffer::write(GLsizeiptr size, const void* data) const
-	{
-		bind();
-		void* mem_ptr = glMapBuffer(target, GL_WRITE_ONLY);
-		memcpy(mem_ptr, data, size);
-		glUnmapBuffer(target);
-		unbind();
-	}*/
 }

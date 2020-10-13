@@ -20,6 +20,8 @@ namespace GLRender
 		VertexArray m_screen_vao;
 		Texture m_tileset;
 		Buffer m_tile_map;
+		BufferTexture m_tileMap;
+//		Buffer m_tile_map_storage;
 		FrameBuffer m_frame_buffer;
 		Program m_tile_shader;
 		Program m_screen_shader;

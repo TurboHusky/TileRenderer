@@ -12,6 +12,7 @@ namespace GLRender
 		// m_full_screen{ ??? },
 		m_tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
 		m_tile_map{ GL_UNIFORM_BUFFER },
+		//m_tile_map_storage{ GL_SHADER_STORAGE_BUFFER }, // Storage buffers not available in 3.3
 		m_frame_buffer{ screen_width, screen_height, Texture::ColourMode::rgba },
 		m_tile_shader{ "tile_shader.vert", "tile_shader.frag" },
 		m_screen_shader{ "screen.vert", "screen.frag" }
@@ -69,21 +70,34 @@ namespace GLRender
 		};
 
 		// Test code, copies tilemap image
-		std::array<glm::uvec2, 380> tileset_indices;
+		std::array<glm::uvec4, 380> tileset_indices;
+		std::array<unsigned int, 380> tex_buff_test;
 		for (auto j = 0; j < 304 / 16; j++)
 		{
 			for (auto i = 0; i < 320 / 16; i++)
 			{
-				tileset_indices[i + 20 * j] = glm::uvec2(i * 16u, j * 16u);
+				tileset_indices[i + 20 * j] = glm::uvec4(i * 16u, j * 16u, i + j * 20u, 0u);
+				tex_buff_test[i + 20 * j] = i + 20u * j;
 			}
 		}
+
+		m_tileMap.load(tex_buff_test, GL_R32UI);
 
 		m_screen_vao.load(screen_verts, screen_indices, screen_attributes);
 		m_bg_vao.load(bg_verts, bg_indices, bg_attributes);
 		m_tile_shader.bind_uniform_block("tiles", m_ubo_binding_index);
 		m_tile_map.load(tileset_indices, GL_STATIC_READ);
 		m_tile_map.bind_to_uniform_block(m_ubo_binding_index);
-		m_tile_map.unbind();
+
+		// Texture binding, needs encapsulating
+		glActiveTexture(GL_TEXTURE0);
+		m_tileMap.bind();
+		glActiveTexture(GL_TEXTURE1);
+		m_tileset.bind();
+
+		m_tile_shader.use();
+		glUniform1i(glGetUniformLocation(m_tile_shader.m_program_ID, "indexBuffer"), 0);
+		glUniform1i(glGetUniformLocation(m_tile_shader.m_program_ID, "tileTexture"), 1);
 	}
 
 	void RenderEngine::render(const glm::uvec2 world_position)
@@ -92,7 +106,8 @@ namespace GLRender
 		m_tile_shader.setUniform_vec2_u("screenSize", glm::uvec2(m_width, m_height));
 		m_tile_shader.setUniform_vec2_u("worldCoords", world_position);
 		m_tile_shader.setUniform_vec4_u("maskCoords", glm::uvec4(0, 0, 128, 128));
-		m_tileset.bind_texture();
+		
+		m_tileset.bind();
 		m_frame_buffer.bind();
 		m_bg_vao.draw();
 		m_frame_buffer.unbind();

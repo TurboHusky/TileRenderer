@@ -60,7 +60,7 @@ namespace GLRender
 		}
 	}
 
-	void Texture::bind_texture() const
+	void Texture::bind() const
 	{
 		glBindTexture(GL_TEXTURE_2D, m_texture_ID);
 	}
@@ -68,5 +68,29 @@ namespace GLRender
 	void Texture::attach_to_frame_buffer() const
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_ID, 0);
+	}
+
+	void BufferTexture::m_bind_buffer(GLenum format)
+	{
+		glBindTexture(GL_TEXTURE_BUFFER, m_buffer_texture_ID);
+		m_data.bind_to_texture(format);
+		glBindTexture(GL_TEXTURE_BUFFER, 0);
+	}
+
+	BufferTexture::BufferTexture() :
+		m_data{ GL_TEXTURE_BUFFER }
+	{
+		glGenTextures(1, &m_buffer_texture_ID);
+	}
+
+	BufferTexture::~BufferTexture()
+	{
+		glDeleteTextures(1, &m_buffer_texture_ID);
+		std::cout << "Buffer Texture Destructor, ID: " << m_buffer_texture_ID << std::endl;
+	}
+
+	void BufferTexture::bind()
+	{
+		glBindTexture(GL_TEXTURE_BUFFER, m_buffer_texture_ID);
 	}
 }

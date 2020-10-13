@@ -2,6 +2,7 @@
 
 #include "opengl.h"
 #include "gl_image.h"
+#include "gl_buffer.h"
 
 namespace GLRender
 {
@@ -48,7 +49,31 @@ namespace GLRender
 		~Texture();
 
 		void load_image(const char* path, const Texture_Settings settings) const;
-		void bind_texture() const;
+		void bind() const;
 		void attach_to_frame_buffer() const;
 	};
+
+	class BufferTexture
+	{
+	private:
+		GLuint m_buffer_texture_ID;
+		Buffer m_data;
+
+		void m_bind_buffer(GLenum format);
+	public:
+		BufferTexture();
+		~BufferTexture();
+		
+		void bind();
+
+		template<typename T, size_t S>
+		void load(std::array<T, S> data, GLenum format);
+	};
+
+	template<typename T, size_t S>
+	void BufferTexture::load(std::array<T, S> data, GLenum format)
+	{
+		m_data.load(data, GL_STATIC_READ);
+		m_bind_buffer(format);
+	}
 }
