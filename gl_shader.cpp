@@ -64,6 +64,11 @@ namespace GLRender
 		glAttachShader(program_ID, m_shader_ID);
 	}
 
+	GLint Program::m_uniform_location(const char* uniform_name) const
+	{
+		return glGetUniformLocation(m_program_ID, uniform_name);
+	}
+
 	Program::Program(const char* vertex_shader_path, const char* fragment_shader_path)
 	{
 		Shader vertex_shader(vertex_shader_path, GL_VERTEX_SHADER);
@@ -104,34 +109,29 @@ namespace GLRender
 			std::cout << "ERROR::PROGRAM::INVALID_BINDING_ID" << std::endl;
 	}
 
-	GLint Program::get_ubo_size(GLint binding_index) const
+	// ~33 different openGL calls to set uniforms. Include only those used for now.
+	void Program::setUniform_i(const char* prop, const GLint value) const
 	{
-		GLint out{ 0 };
-		glGetActiveUniformBlockiv(m_program_ID, binding_index, GL_UNIFORM_BLOCK_DATA_SIZE, &out);
-		return out;
+		glUniform1i(m_uniform_location(prop), value);
 	}
 
-	void Program::setUniform_vec2_u(const char* prop, const glm::uvec2 vec) const
+	void Program::setUniform_uvec2(const char* prop, const glm::uvec2 vec) const
 	{
-		int uniform_ID = glGetUniformLocation(m_program_ID, prop);
-		glUniform2ui(uniform_ID, vec.x, vec.y);
+		glUniform2ui(m_uniform_location(prop), vec.x, vec.y);
 	}
 
-	void Program::setUniform_vec4_u(const char* prop, const glm::uvec4 vec) const
+	void Program::setUniform_uvec4(const char* prop, const glm::uvec4 vec) const
 	{
-		int uniform_ID = glGetUniformLocation(m_program_ID, prop);
-		glUniform4ui(uniform_ID, vec.x, vec.y, vec.z, vec.w);
+		glUniform4ui(m_uniform_location(prop), vec.x, vec.y, vec.z, vec.w);
 	}
 
-	void Program::setUniform_vec2_f(const char* prop, const glm::vec2 vec) const
+	void Program::setUniform_vec2(const char* prop, const glm::vec2 vec) const
 	{
-		int uniform_ID = glGetUniformLocation(m_program_ID, prop);
-		glUniform2f(uniform_ID, vec.x, vec.y);
+		glUniform2f(m_uniform_location(prop), vec.x, vec.y);
 	}
 
-	void Program::setUniform_vec4_f(const char* prop, const glm::vec4 vec) const
+	void Program::setUniform_vec4(const char* prop, const glm::vec4 vec) const
 	{
-		int uniform_ID = glGetUniformLocation(m_program_ID, prop);
-		glUniform4f(uniform_ID, vec.x, vec.y, vec.z, vec.w);
+		glUniform4f(m_uniform_location(prop), vec.x, vec.y, vec.z, vec.w);
 	}
 }

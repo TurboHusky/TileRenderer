@@ -19,8 +19,11 @@ namespace GLRender
 
 	Buffer::~Buffer()
 	{
+		GLint s;
+		glBindBuffer(m_target, m_buffer_ID);
+		glGetBufferParameteriv(m_target, GL_BUFFER_SIZE, &s);
 		glDeleteBuffers(1, &m_buffer_ID);
-		std::cout << "Buffer Destructor, ID: " << m_buffer_ID << std::endl;
+		std::cout << "Buffer Destructor, " << s << ", ID: " << m_buffer_ID << std::endl;
 	}
 
 	void Buffer::bind_to_uniform_block(GLuint ubo_index) const

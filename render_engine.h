@@ -14,14 +14,13 @@ namespace GLRender
 		unsigned int m_width;
 		unsigned int m_height;
 		glm::uvec2 m_screen_position_old;
-		GLuint m_ubo_binding_index;
+		GLuint m_uniform_binding_point;
 
-		VertexArray m_bg_vao;
-		VertexArray m_screen_vao;
-		Texture m_tileset;
-		Buffer m_tile_map;
-		BufferTexture m_tileMap;
-//		Buffer m_tile_map_storage;
+		VertexArray m_verts_bg;
+		VertexArray m_verts_screen;
+		Texture m_tex_tileset;
+		Buffer m_buff_uniform_data;
+		BufferTexture m_buff_tex_tile_indices; // No storage buffers in 3.3, use buffer texture
 		FrameBuffer m_frame_buffer;
 		Program m_tile_shader;
 		Program m_screen_shader;

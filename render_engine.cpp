@@ -7,12 +7,9 @@ namespace GLRender
 		m_width{ screen_width },
 		m_height{ screen_height },
 		m_screen_position_old{ glm::uvec2(screen_width, screen_height) },
-		m_ubo_binding_index{ 0 },
-		// m_screen_mask{ ??? },
-		// m_full_screen{ ??? },
-		m_tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
-		m_tile_map{ GL_UNIFORM_BUFFER },
-		//m_tile_map_storage{ GL_SHADER_STORAGE_BUFFER }, // Storage buffers not available in 3.3
+		m_uniform_binding_point{ 0 },
+		m_tex_tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
+		m_buff_uniform_data{ GL_UNIFORM_BUFFER },
 		m_frame_buffer{ screen_width, screen_height, Texture::ColourMode::rgba },
 		m_tile_shader{ "tile_shader.vert", "tile_shader.frag" },
 		m_screen_shader{ "screen.vert", "screen.frag" }
@@ -70,54 +67,60 @@ namespace GLRender
 		};
 
 		// Test code, copies tilemap image
-		std::array<glm::uvec4, 380> tileset_indices;
-		std::array<unsigned int, 380> tex_buff_test;
+		std::array<unsigned int, 380> tileset_indices;
 		for (auto j = 0; j < 304 / 16; j++)
 		{
 			for (auto i = 0; i < 320 / 16; i++)
 			{
-				tileset_indices[i + 20 * j] = glm::uvec4(i * 16u, j * 16u, i + j * 20u, 0u);
-				tex_buff_test[i + 20 * j] = i + 20u * j;
+				tileset_indices[i + 20 * j] = i + 20u * j;
 			}
 		}
 
-		m_tileMap.load(tex_buff_test, GL_R32UI);
+		std::array<unsigned int, 8> tile_data{ 
+			m_width, m_height,	// Screen size
+			16u, 16u,			// Tile size
+			20u, 19u,			// Tile count
+			20u, 19u			// Map size
+		};
 
-		m_screen_vao.load(screen_verts, screen_indices, screen_attributes);
-		m_bg_vao.load(bg_verts, bg_indices, bg_attributes);
-		m_tile_shader.bind_uniform_block("tiles", m_ubo_binding_index);
-		m_tile_map.load(tileset_indices, GL_STATIC_READ);
-		m_tile_map.bind_to_uniform_block(m_ubo_binding_index);
+		m_buff_tex_tile_indices.load(tileset_indices, GL_R32UI);
+
+		m_verts_screen.load(screen_verts, screen_indices, screen_attributes);
+		m_verts_bg.load(bg_verts, bg_indices, bg_attributes);
+		
+		m_buff_uniform_data.load(tile_data, GL_STATIC_READ);
 
 		// Texture binding, needs encapsulating
 		glActiveTexture(GL_TEXTURE0);
-		m_tileMap.bind();
+		m_buff_tex_tile_indices.bind();
 		glActiveTexture(GL_TEXTURE1);
-		m_tileset.bind();
+		m_tex_tileset.bind();
 
+		// Shader setup
 		m_tile_shader.use();
-		glUniform1i(glGetUniformLocation(m_tile_shader.m_program_ID, "indexBuffer"), 0);
-		glUniform1i(glGetUniformLocation(m_tile_shader.m_program_ID, "tileTexture"), 1);
+		m_buff_uniform_data.bind_to_uniform_block(m_uniform_binding_point);
+		m_tile_shader.bind_uniform_block("tileData", m_uniform_binding_point);
+		m_tile_shader.setUniform_i("indexBuffer", 0);
+		m_tile_shader.setUniform_i("tileTexture", 1);
 	}
 
 	void RenderEngine::render(const glm::uvec2 world_position)
 	{
 		m_tile_shader.use();
-		m_tile_shader.setUniform_vec2_u("screenSize", glm::uvec2(m_width, m_height));
-		m_tile_shader.setUniform_vec2_u("worldCoords", world_position);
-		m_tile_shader.setUniform_vec4_u("maskCoords", glm::uvec4(0, 0, 128, 128));
+		m_tile_shader.setUniform_uvec2("worldCoords", world_position);
+		m_tile_shader.setUniform_uvec4("maskCoords", glm::uvec4(0, 0, 128, 128));
 		
-		m_tileset.bind();
+		m_tex_tileset.bind();
 		m_frame_buffer.bind();
-		m_bg_vao.draw();
+		m_verts_bg.draw();
 		m_frame_buffer.unbind();
 
 		glClear(GL_COLOR_BUFFER_BIT); // Redundant for this application? Move to buffer class/namespace
 
 		m_screen_shader.use();
-		m_screen_shader.setUniform_vec2_f("offset", glm::vec2(0.0f, 0.0f));
+		m_screen_shader.setUniform_vec2("offset", glm::vec2(0.0f, 0.0f));
 		m_frame_buffer.bind_colour_buffer();
-		m_screen_vao.draw();
+		m_verts_screen.draw();
 
 		m_screen_position_old = world_position;
 	}

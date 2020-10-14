@@ -2,12 +2,17 @@
 layout (location = 0) in uvec3 xMaskCoeffs;
 layout (location = 1) in uvec3 yMaskCoeffs;
 
-// Inputs in pixels, mask passed as xy = bottom left, zw = top right
-uniform uvec2 screenSize;
-uniform uvec4 maskCoords;
+uniform uvec4 maskCoords; // Input is in pixels, xy = bottom left, zw = top right
 
-// Must pass integers as flat, cannot interpolate
-//out vec2 ScreenCoords; // Pixel space
+layout (std140) uniform tileData
+{
+	uvec2 screenSize;
+	uvec2 tileSize;
+	uvec2 tileCount;
+	uvec2 mapSize;
+};
+
+// Must pass integers to frag shader as flat, cannot interpolate
 
 void main()
 {	
