@@ -1,21 +1,29 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform uvec2 worldCoords;
+uniform uvec2 worldOffset;
 uniform usamplerBuffer indexBuffer;
 uniform sampler2D tileTexture;
 
 layout (std140) uniform tileData
 {
 	uvec2 screenSize;
+	uvec2 renderSize;
 	uvec2 tileSize;
 	uvec2 tileCount;
 	uvec2 mapSize;
 };
 
+in vec2 texCoords;
+
+uniform vec4 tempColour;
+
 void main()
 {	
-	uvec2 pixelCoords = worldCoords + uvec2(gl_FragCoord.xy); // gl_FragCoord gives pixel midpoint
+	uvec2 localCoords = uvec2(gl_FragCoord); // gl_FragCoord is in screen space, will scale things.
+	uvec2 screenCount = (renderSize - 1u - localCoords + worldOffset) / renderSize;
+	uvec2 pixelCoords = (screenCount * renderSize) + localCoords;
+
 	uvec2 tileIndices = pixelCoords / tileSize; 
 	vec2 tileCoords = mod(pixelCoords, tileSize) + 0.5; // 0.5 offset prevents sampling errors at pixel boundaries
 	
@@ -25,4 +33,5 @@ void main()
 	vec2 texCoords = (vec2(x * tileSize.x, y * tileSize.y) + tileCoords) / textureSize(tileTexture, 0);
 
 	FragColor = texture(tileTexture, texCoords);
+	//FragColor = tempColour;
 }

@@ -11,11 +11,13 @@ namespace GLRender
 	class RenderEngine
 	{
 	private:
-		unsigned int m_width;
-		unsigned int m_height;
+		unsigned int m_screen_width;
+		unsigned int m_screen_height;
+		unsigned int m_render_width;
+		unsigned int m_render_height;
 		glm::uvec2 m_screen_position_old;
 		GLuint m_uniform_binding_point;
-
+glm::vec4 tempCol{ 0.0, 0.0, 0.0, 1.0 };
 		VertexArray m_verts_bg;
 		VertexArray m_verts_screen;
 		Texture m_tex_tileset;

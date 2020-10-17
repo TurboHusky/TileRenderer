@@ -3,6 +3,7 @@
 namespace GLRender
 {
 	VertexArray::VertexArray() :
+		m_vertex_count{ 0 },
 		m_vertex_buffer{ GL_ARRAY_BUFFER },
 		m_element_buffer{ GL_ELEMENT_ARRAY_BUFFER }
 	{

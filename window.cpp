@@ -5,7 +5,10 @@
 namespace TileRender
 {
 	// Note: Can throw exceptions from constructor, however destructor is not called and cleanup must be done manually.
-	Window::Window(const int width, const int height) : m_width{ width }, m_height{ height }
+	Window::Window(const int width, const int height) : 
+		m_width{ width }, 
+		m_height{ height },
+		m_world_position{ glm::uvec2(0u, 0u) }
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -38,7 +41,7 @@ namespace TileRender
 
 	glm::uvec2 Window::world_position() const
 	{
-		return glm::uvec2(69.0, 85.0);
+		return m_world_position;
 	}
 
 	bool Window::open() const
@@ -50,5 +53,32 @@ namespace TileRender
 	{
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
+	}
+
+	void Window::processInput() const
+	{
+		if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(m_window, true);
+
+		if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			m_world_position.y += 1;
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			m_world_position.y -= 1;
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			m_world_position.x -= 1;
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			m_world_position.x += 1;
+		}
+		if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS)
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
 	}
 }
