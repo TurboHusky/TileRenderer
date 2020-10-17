@@ -13,7 +13,7 @@ namespace GLRender
 		m_tex_tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
 		m_buff_uniform_data{ GL_UNIFORM_BUFFER },
 		m_frame_buffer{ m_render_width, m_render_height, Texture::ColourMode::rgba },
-		m_tile_shader{ "tile_shader.vert", "tile_shader.frag" },
+		m_tile_shader{ "tile_shader.vert", "tile_shader.geom", "tile_shader.frag" },
 		m_screen_shader{ "screen.vert", "screen.frag" }
 	{
 		std::array<float, 16> screen_verts{
@@ -77,7 +77,7 @@ namespace GLRender
 				tileset_indices[i + 20 * j] = i + 20u * j;
 			}
 		}
-
+		
 		std::array<unsigned int, 10> tile_data{ 
 			m_screen_width, m_screen_height,
 			m_render_width, m_render_height,
@@ -119,7 +119,7 @@ namespace GLRender
 		m_verts_bg.draw();
 		m_frame_buffer.unbind();
 
-		std::cout << m_screen_position_old.x << ", " << m_screen_position_old.y << ", " << world_position.x << ", " << world_position.y << std::endl;
+//std::cout << m_screen_position_old.x << ", " << m_screen_position_old.y << ", " << world_position.x << ", " << world_position.y << std::endl;
 		tempCol.x = (tempCol.x > 1.0) ? 0.0 : tempCol.x + 0.001;
 		tempCol.y = (tempCol.y > 1.0) ? 0.0 : tempCol.y + 0.002;
 		tempCol.z = (tempCol.z > 1.0) ? 0.0 : tempCol.z + 0.003;

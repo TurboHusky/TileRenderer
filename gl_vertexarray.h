@@ -15,12 +15,13 @@ namespace GLRender
 
 	class VertexArray
 	{
-	private:
+	protected:
 		GLuint m_vertex_array_ID;
 		GLuint m_vertex_count;
+		GLuint m_vertex_array_size;
 		Buffer m_vertex_buffer;
 		Buffer m_element_buffer;
-		void set_attributes(const std::vector<VertexAttribute> attributes);
+		void m_build_vertex_array(const std::vector<VertexAttribute> attributes);
 	public:
 		VertexArray();
 		VertexArray(const VertexArray&) = delete;
@@ -37,12 +38,13 @@ namespace GLRender
 		void draw() const;
 	};
 
-	template<typename V, size_t SV, typename E, size_t SE>
-	inline void VertexArray::load(const std::array<V, SV>& vert, const std::array<E, SE>& elem, const std::vector<VertexAttribute> attributes)
+	template<typename T_v, size_t S_v, typename T_e, size_t S_e>
+	inline void VertexArray::load(const std::array<T_v, S_v>& vert, const std::array<T_e, S_e>& elem, const std::vector<VertexAttribute> attributes)
 	{
-		m_vertex_count = sizeof(E) * SE;
+		m_vertex_count = sizeof(T_e) * S_e;
+		m_vertex_array_size = S_v;
 		m_vertex_buffer.load(vert, GL_STATIC_READ);
 		m_element_buffer.load(elem, GL_STATIC_READ);
-		set_attributes(attributes);
+		m_build_vertex_array(attributes);
 	}
 }

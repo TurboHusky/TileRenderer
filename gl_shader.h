@@ -24,8 +24,10 @@ namespace GLRender
 	private:
 		unsigned int m_program_ID;
 		GLint m_uniform_location(const char* uniform_name) const;
+		unsigned int m_build_shader_program(const char* vert, const char* frag, const char* geo = "") const;
 	public:
 		Program(const char* vertex_shader_path, const char* fragment_shader_path);
+		Program(const char* vertex_shader_path, const char* geometry_shader_path, const char* fragment_shader_path);
 		Program(const Program&) = delete;
 		Program(Program&&) = delete;
 		Program& operator=(const Program&) = delete;

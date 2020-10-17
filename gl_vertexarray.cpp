@@ -4,6 +4,7 @@ namespace GLRender
 {
 	VertexArray::VertexArray() :
 		m_vertex_count{ 0 },
+		m_vertex_array_size{ 0 },
 		m_vertex_buffer{ GL_ARRAY_BUFFER },
 		m_element_buffer{ GL_ELEMENT_ARRAY_BUFFER }
 	{
@@ -26,7 +27,7 @@ namespace GLRender
 		glBindVertexArray(0);
 	}
 
-	void VertexArray::set_attributes(const std::vector<VertexAttribute> attribs)
+	void VertexArray::m_build_vertex_array(const std::vector<VertexAttribute> attribs)
 	{
 		glBindVertexArray(m_vertex_array_ID);
 		m_vertex_buffer.bind();
@@ -45,6 +46,7 @@ namespace GLRender
 	void VertexArray::draw() const
 	{
 		bind();
-		glDrawElements(GL_TRIANGLES, m_vertex_count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, m_vertex_count, GL_UNSIGNED_INT, 0); // Indexed rendering
+		//glDrawArrays(GL_POINTS, 0, m_vertex_array_size);
 	}
 }

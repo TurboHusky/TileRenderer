@@ -69,24 +69,40 @@ namespace GLRender
 		return glGetUniformLocation(m_program_ID, uniform_name);
 	}
 
-	Program::Program(const char* vertex_shader_path, const char* fragment_shader_path)
+	unsigned int Program::m_build_shader_program(const char* vertex_shader_path, const char* fragment_shader_path, const char* geometry_shader_path) const
 	{
-		Shader vertex_shader(vertex_shader_path, GL_VERTEX_SHADER);
-		Shader fragment_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
-
 		GLint success;
 		GLchar infoLog[1024];
 
-		m_program_ID = glCreateProgram();
-		vertex_shader.attach(m_program_ID);
-		fragment_shader.attach(m_program_ID);
-		glLinkProgram(m_program_ID);
-		glGetProgramiv(m_program_ID, GL_LINK_STATUS, &success);
+		unsigned int ID = glCreateProgram();
+		Shader vertex_shader(vertex_shader_path, GL_VERTEX_SHADER);
+		Shader fragment_shader(fragment_shader_path, GL_FRAGMENT_SHADER);
+		vertex_shader.attach(ID);
+		fragment_shader.attach(ID);
+		if (geometry_shader_path != "")
+		{
+			Shader geometry_shader(geometry_shader_path, GL_GEOMETRY_SHADER);
+			geometry_shader.attach(ID);
+		}
+		glLinkProgram(ID);
+		glGetProgramiv(ID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(m_program_ID, 1024, NULL, infoLog);
+			glGetProgramInfoLog(ID, 1024, NULL, infoLog);
 			std::cout << "ERROR::PROGRAM::LINKING_ERROR of type: " << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
 		}
+
+		return ID;
+	}
+
+	Program::Program(const char* vertex_shader_path, const char* fragment_shader_path)
+	{
+		m_program_ID = m_build_shader_program(vertex_shader_path, fragment_shader_path);
+	}
+
+	Program::Program(const char* vertex_shader_path, const char* geometry_shader_path, const char* fragment_shader_path)
+	{
+		m_program_ID = m_build_shader_program(vertex_shader_path, fragment_shader_path, geometry_shader_path);
 	}
 
 	Program::~Program()
