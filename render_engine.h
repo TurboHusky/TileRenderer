@@ -18,8 +18,8 @@ namespace GLRender
 		glm::uvec2 m_screen_position_old;
 		GLuint m_uniform_binding_point;
 glm::vec4 tempCol{ 0.0, 0.0, 0.0, 1.0 };
-		VertexArray m_verts_bg;
-		VertexArray m_verts_screen;
+		VertexArrayIndexed m_verts_bg;
+		VertexArrayIndexed m_verts_screen;
 		Texture m_tex_tileset;
 		Buffer m_buff_uniform_data;
 		BufferTexture m_buff_tex_tile_indices; // No storage buffers in 3.3, use buffer texture

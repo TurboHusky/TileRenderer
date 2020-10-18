@@ -19,7 +19,7 @@ namespace GLRender
 		GLuint m_vertex_array_ID;
 		GLuint m_vertex_count;
 		Buffer m_vertex_buffer;
-		Buffer m_element_buffer;
+		
 		void m_build_vertex_array(const std::vector<VertexAttribute> attributes);
 	public:
 		VertexArray();
@@ -32,17 +32,43 @@ namespace GLRender
 		void bind() const;
 		void unbind() const;
 
+		template <typename T, size_t S>
+		void load(const std::array<T, S>& vert, const std::vector<VertexAttribute> attributes);
+		void draw() const;
+	};
+
+	template<typename T, size_t S>
+	inline void VertexArray::load(const std::array<T, S>& vert, const std::vector<VertexAttribute> attributes)
+	{
+		m_vertex_count = sizeof(T) * S;
+		m_vertex_buffer.load(vert, GL_STATIC_READ);
+		m_build_vertex_array(attributes);
+	}
+
+	class VertexArrayIndexed : public VertexArray {
+	private:
+		Buffer m_element_buffer;
+		void m_attach_element_buffer();
+		GLuint m_vertex_count;
+	public:
+		VertexArrayIndexed();
+		VertexArrayIndexed(const VertexArrayIndexed&) = delete;
+		VertexArrayIndexed(VertexArrayIndexed&&) = delete;
+		VertexArrayIndexed& operator=(const VertexArrayIndexed&) = delete;
+		VertexArrayIndexed& operator=(VertexArrayIndexed&&) = delete;
+		~VertexArrayIndexed() = default;
+
 		template <typename T_v, size_t S_v, typename T_e, size_t S_e>
 		void load(const std::array<T_v, S_v>& vert, const std::array<T_e, S_e>& elem, const std::vector<VertexAttribute> attributes);
 		void draw() const;
 	};
 
 	template<typename T_v, size_t S_v, typename T_e, size_t S_e>
-	inline void VertexArray::load(const std::array<T_v, S_v>& vert, const std::array<T_e, S_e>& elem, const std::vector<VertexAttribute> attributes)
+	inline void VertexArrayIndexed::load(const std::array<T_v, S_v>& vert, const std::array<T_e, S_e>& elem, const std::vector<VertexAttribute> attributes)
 	{
 		m_vertex_count = sizeof(T_e) * S_e;
-		m_vertex_buffer.load(vert, GL_STATIC_READ);
+		VertexArray::load(vert, attributes);
 		m_element_buffer.load(elem, GL_STATIC_READ);
-		m_build_vertex_array(attributes);
+		m_attach_element_buffer();
 	}
 }
