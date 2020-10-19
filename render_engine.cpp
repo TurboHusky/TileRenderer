@@ -35,20 +35,21 @@ namespace GLRender
 		m_verts_screen.load(screen_verts, screen_indices, screen_attributes);
 
 		std::array<unsigned int, 96> bg_verts{
-			2u, 7u,
-			2u, 3u,
-			0u, 3u,
-			0u, 7u,
+			// indices		// offsets
+			2u, 7u,			1u, 0u,
+			2u, 3u,			1u, 0u,
+			0u, 3u,			1u, 0u,
+			0u, 7u,			1u, 0u,
 
-			6u, 3u,
-			6u, 1u,
-			4u, 1u,
-			4u, 3u,
+			6u, 3u,			0u, 1u,
+			6u, 1u,			0u, 1u,
+			4u, 1u,			0u, 1u,
+			4u, 3u,			0u, 1u,
 
-			2u, 1u,
-			2u, 5u,
-			0u, 5u,
-			0u, 1u
+			2u, 1u,			1u, 0u,
+			2u, 5u,			1u, 0u,
+			0u, 5u,			1u, 0u,
+			0u, 1u,			1u, 0u
 		};	
 
 		std::array<unsigned int, 18> bg_indices{
@@ -62,7 +63,8 @@ namespace GLRender
 
 		std::vector<VertexAttribute> bg_attributes
 		{
-			VertexAttribute{ 2, GL_FLOAT, GL_FALSE, 2 * sizeof(unsigned int), (void*) 0 }
+			VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(unsigned int), (void*) 0 },
+			VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)) }
 		};
 		m_verts_bg.load(bg_verts, bg_indices, bg_attributes);
 
@@ -103,16 +105,19 @@ namespace GLRender
 	void RenderEngine::render(const glm::uvec2 world_position)
 	{
 		m_tile_shader.use();
-		GLuint newCoords[8]{ 16u, 16u, 80u, 80u, 0u, 0u, 128u, 128u };
+		GLuint newCoords[8]{ world_position.x, world_position.y, world_position.x + 48u, world_position.y + 48u, 0u, 0u, 128u, 128u };
 		m_tile_shader.setUniform_1uiv("renderArea", 8, &newCoords[0]);
-		m_tile_shader.setUniform_uvec2("worldOffset", glm::uvec2(world_position));
+		m_tile_shader.setUniform_uvec2("worldOffset", world_position);
 
 		m_tex_tileset.bind();
 		m_frame_buffer.bind();
+		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
 		m_verts_bg.draw();
 		m_frame_buffer.unbind();
 
-		//glClear(GL_COLOR_BUFFER_BIT); // Not yet needed.
+		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT); // Not yet needed.
 
 		m_screen_shader.use();
 		glm::vec2 screen_offset{ (float)(world_position.x % m_render_size.x) / m_render_size.x, (float)(world_position.y % m_render_size.y) / m_render_size.y };
