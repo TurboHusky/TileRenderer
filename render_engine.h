@@ -20,7 +20,7 @@ namespace GLRender
 		Buffer m_buff_uniform_data;
 		BufferTexture m_buff_tex_tile_indices; // No storage buffers in 3.3, use buffer texture
 		FrameBuffer m_frame_buffer;
-		VertexArrayIndexed m_verts_bg;
+		VertexArray m_verts_bg;
 		VertexArrayIndexed m_verts_screen;
 		Program m_tile_shader;
 		Program m_screen_shader;

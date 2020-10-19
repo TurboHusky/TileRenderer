@@ -43,7 +43,7 @@ namespace GLRender
 	void VertexArray::draw() const
 	{
 		bind();
-		glDrawArrays(GL_POINTS, 0, m_vertex_count);
+		glDrawArrays(GL_LINES, 0, m_vertex_count);
 	}
 
 
