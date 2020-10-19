@@ -1,9 +1,9 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform uvec2 worldOffset;
 uniform usamplerBuffer indexBuffer;
 uniform sampler2D tileTexture;
+uniform uvec2 worldOffset;
 
 layout (std140) uniform tileData
 {
@@ -13,10 +13,6 @@ layout (std140) uniform tileData
 	uvec2 tileCount;
 	uvec2 mapSize;
 };
-
-in vec2 texCoords;
-
-uniform vec4 tempColour;
 
 void main()
 {	
@@ -33,5 +29,4 @@ void main()
 	vec2 texCoords = (vec2(x * tileSize.x, y * tileSize.y) + tileCoords) / textureSize(tileTexture, 0);
 
 	FragColor = texture(tileTexture, texCoords);
-	//FragColor = tempColour;
 }

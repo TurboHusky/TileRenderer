@@ -38,6 +38,7 @@ namespace GLRender
 		void bind_uniform_block(const char* u_id, GLuint index) const;
 
 		void setUniform_i(const char* prop, const GLint value) const;
+		void setUniform_1uiv(const char* prop, const GLsizei size, const GLuint* value) const;
 		void setUniform_uvec2(const char* prop, const glm::uvec2 vec) const;
 		void setUniform_uvec4(const char* prop, const glm::uvec4 vec) const;
 		void setUniform_vec2(const char* prop, const glm::vec2 vec) const;

@@ -131,6 +131,11 @@ namespace GLRender
 		glUniform1i(m_uniform_location(prop), value);
 	}
 
+	void Program::setUniform_1uiv(const char* prop, const GLsizei size, const GLuint* value ) const
+	{
+		glUniform1uiv(m_uniform_location(prop), size, value);
+	}
+
 	void Program::setUniform_uvec2(const char* prop, const glm::uvec2 vec) const
 	{
 		glUniform2ui(m_uniform_location(prop), vec.x, vec.y);

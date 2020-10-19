@@ -1,8 +1,8 @@
 #version 330 core
-layout (location = 0) in uvec3 xMaskCoeffs;
-layout (location = 1) in uvec3 yMaskCoeffs;
+layout (location = 0) in uvec2 coordIndex;
 
-uniform uvec4 maskCoords; // Input is in pixels, xy = bottom left, zw = top right
+// !! Mask values need to be mapped to screen area prior to being passed to shader.
+uniform uint renderArea[8]; // bottom left / top right xy coords for mask area and screen
 
 layout (std140) uniform tileData
 {
@@ -13,18 +13,8 @@ layout (std140) uniform tileData
 	uvec2 mapSize;
 };
 
-// Must pass integers to frag shader as flat, cannot interpolate
-out vec2 texCoords;
-
 void main()
 {	
-	uvec4 test = maskCoords / uvec4(renderSize, renderSize);
-	test = maskCoords - test * uvec4(renderSize, renderSize);
-	
-	texCoords.x = xMaskCoeffs.x * test.x + xMaskCoeffs.y * test.z + xMaskCoeffs.z;
-	texCoords.y = yMaskCoeffs.x * test.y + yMaskCoeffs.y * test.w + yMaskCoeffs.z;
-
-	vec2 vertPos = ((2.0 * texCoords) / screenSize) - 1.0; // Use screen coords to map mask to clip space (-1 to 1)
-
+	vec2 vertPos = ((2.0 * vec2(renderArea[coordIndex.x], renderArea[coordIndex.y])) / screenSize) - 1.0; // Clip space mapping (-1 to 1)
 	gl_Position = vec4(vertPos, 0.0, 1.0);
 }

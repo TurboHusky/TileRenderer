@@ -4,15 +4,13 @@
 namespace GLRender
 {
 	RenderEngine::RenderEngine(const unsigned int screen_width, const unsigned int screen_height) :
-		m_screen_width{ screen_width },
-		m_screen_height{ screen_height },
-		m_render_width{ 128 },
-		m_render_height{ 128 },
+		m_screen_size{ screen_width, screen_height },
+		m_render_size{ 128, 128 },
 		m_screen_position_old{ glm::uvec2(0,0) }, //render_width, render_height) },
 		m_uniform_binding_point{ 0 },
 		m_tex_tileset{ "resources/38056.png", { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } },
 		m_buff_uniform_data{ GL_UNIFORM_BUFFER },
-		m_frame_buffer{ m_render_width, m_render_height, Texture::ColourMode::rgba },
+		m_frame_buffer{ m_render_size.x, m_render_size.y, Texture::ColourMode::rgba },
 		m_tile_shader{ "tile_shader.vert", "tile_shader.geom", "tile_shader.frag" },
 		m_screen_shader{ "screen.vert", "screen.frag" }
 	{
@@ -34,25 +32,25 @@ namespace GLRender
 			VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*) 0 },
 			VertexAttribute { 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*) (2 * sizeof(float)) }
 		};
+		m_verts_screen.load(screen_verts, screen_indices, screen_attributes);
 
-		std::array<unsigned int, 72> bg_verts{
-			// l, r, const				// b, t, const
-			 0u,  1u,  0u,				0u,  0u,  screen_height,
-			 0u,  1u,  0u,				0u,  1u,  0u,
-			 1u,  0u,  0u,				0u,  1u,  0u,
-			 1u,  0u,  0u,				0u,  0u,  screen_height,
+		std::array<unsigned int, 96> bg_verts{
+			2u, 7u,
+			2u, 3u,
+			0u, 3u,
+			0u, 7u,
 
-			 0u,  0u,  screen_width,	0u,  1u,  0u,
-			 0u,  0u,  screen_width,	1u,  0u,  0u,
-			 0u,  0u,  0u,				1u,  0u,  0u,
-			 0u,  0u,  0u,				0u,  1u,  0u,
+			6u, 3u,
+			6u, 1u,
+			4u, 1u,
+			4u, 3u,
 
-			 0u,  1u,  0u,				1u,  0u,  0u,
-			 0u,  1u,  0u,				0u,  0u,  0u,
-			 1u,  0u,  0u,				0u,  0u,  0u,
-			 1u,  0u,  0u,				1u,  0u,  0u
-		};
-		
+			2u, 1u,
+			2u, 5u,
+			0u, 5u,
+			0u, 1u
+		};	
+
 		std::array<unsigned int, 18> bg_indices{
 			0, 1, 3,
 			1, 2, 3,
@@ -64,9 +62,9 @@ namespace GLRender
 
 		std::vector<VertexAttribute> bg_attributes
 		{
-			VertexAttribute{ 3, GL_FLOAT, GL_FALSE, 6 * sizeof(unsigned int), (void*) 0 }, // uint breaks shader. wtf?!?
-			VertexAttribute{ 3, GL_FLOAT, GL_FALSE, 6 * sizeof(unsigned int), (void*) (3 * sizeof(unsigned int)) }
+			VertexAttribute{ 2, GL_FLOAT, GL_FALSE, 2 * sizeof(unsigned int), (void*) 0 }
 		};
+		m_verts_bg.load(bg_verts, bg_indices, bg_attributes);
 
 		// Test code, copies tilemap image
 		std::array<unsigned int, 380> tileset_indices;
@@ -77,20 +75,15 @@ namespace GLRender
 				tileset_indices[i + 20 * j] = i + 20u * j;
 			}
 		}
-		
+		m_buff_tex_tile_indices.load(tileset_indices, GL_R32UI);
+
 		std::array<unsigned int, 10> tile_data{ 
-			m_screen_width, m_screen_height,
-			m_render_width, m_render_height,
+			m_screen_size.x, m_screen_size.y,
+			m_render_size.x, m_render_size.y,
 			16u, 16u,			// Tile size
 			20u, 19u,			// Tile count
 			20u, 19u			// Map size
 		};
-
-		m_buff_tex_tile_indices.load(tileset_indices, GL_R32UI);
-		
-		m_verts_screen.load(screen_verts, screen_indices, screen_attributes);
-		m_verts_bg.load(bg_verts, bg_indices, bg_attributes);
-
 		m_buff_uniform_data.load(tile_data, GL_STATIC_READ);
 
 		// Texture binding, needs encapsulating
@@ -110,8 +103,8 @@ namespace GLRender
 	void RenderEngine::render(const glm::uvec2 world_position)
 	{
 		m_tile_shader.use();
-		m_tile_shader.setUniform_uvec4("maskCoords", glm::uvec4(m_screen_position_old.x, m_screen_position_old.y, world_position.x, world_position.y));
-		//m_tile_shader.setUniform_uvec4("maskCoords", glm::uvec4(16u, 16u, 64u, 64u));
+		GLuint newCoords[8]{ 16u, 16u, 80u, 80u, 0u, 0u, 128u, 128u };
+		m_tile_shader.setUniform_1uiv("renderArea", 8, &newCoords[0]);
 		m_tile_shader.setUniform_uvec2("worldOffset", glm::uvec2(world_position));
 
 		m_tex_tileset.bind();
@@ -119,17 +112,12 @@ namespace GLRender
 		m_verts_bg.draw();
 		m_frame_buffer.unbind();
 
-//std::cout << m_screen_position_old.x << ", " << m_screen_position_old.y << ", " << world_position.x << ", " << world_position.y << std::endl;
-		tempCol.x = (tempCol.x > 1.0) ? 0.0 : tempCol.x + 0.001;
-		tempCol.y = (tempCol.y > 1.0) ? 0.0 : tempCol.y + 0.002;
-		tempCol.z = (tempCol.z > 1.0) ? 0.0 : tempCol.z + 0.003;
-		m_tile_shader.setUniform_vec4("tempColour", tempCol);
 		//glClear(GL_COLOR_BUFFER_BIT); // Not yet needed.
 
 		m_screen_shader.use();
-		glm::vec2 screen_offset{ 0, 0 };// (float)(world_position.x % m_width) / m_width, (float)(world_position.y % m_height) / m_height };
+		glm::vec2 screen_offset{ (float)(world_position.x % m_render_size.x) / m_render_size.x, (float)(world_position.y % m_render_size.y) / m_render_size.y };
 		m_screen_shader.setUniform_vec2("screenOffset", screen_offset);
-//m_frame_buffer.bind_colour_buffer();
+		//m_frame_buffer.bind_colour_buffer();
 		m_verts_screen.draw();
 
 		m_screen_position_old = world_position;
