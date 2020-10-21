@@ -16,7 +16,7 @@ layout (std140) uniform tileData
 
 void main()
 {	
-	uvec2 localCoords = uvec2(gl_FragCoord); // gl_FragCoord is in screen space, will scale things.
+	uvec2 localCoords = uvec2(gl_FragCoord); // gl_FragCoord is in screen space
 	uvec2 screenCount = (renderSize - 1u - localCoords + worldOffset) / renderSize;
 	uvec2 pixelCoords = (screenCount * renderSize) + localCoords;
 
