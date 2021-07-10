@@ -8,8 +8,15 @@ namespace GLRender
 	Image::Image(const char* path)
 	{
 		int nrChannels;
+
 		stbi_set_flip_vertically_on_load(true);
 		m_data = stbi_load(path, &m_width, &m_height, &nrChannels, 0);
+
+		if (m_data == nullptr)
+		{
+			throw std::runtime_error("gl_image::Can't open file\n");
+			return;
+		}
 
 		switch (nrChannels)
 		{

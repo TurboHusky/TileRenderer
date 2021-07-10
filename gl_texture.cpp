@@ -31,32 +31,36 @@ namespace GLRender
 
 	void Texture::load_image(const char* path, const Texture_Settings settings) const
 	{
-		Image image(path);
-		ImageData image_data = image.get_image_data();
+		try 
+		{ 
+			Image image(path);
+			ImageData image_data = image.get_image_data();
 
-		if (image_data.data)
-		{
-			glBindTexture(GL_TEXTURE_2D, m_texture_ID);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_horizontal);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, settings.wrap_vertical);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, settings.filter_min);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, settings.filter_mag);
+			if (image_data.data)
+			{
+				glBindTexture(GL_TEXTURE_2D, m_texture_ID);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.wrap_horizontal);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, settings.wrap_vertical);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, settings.filter_min);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, settings.filter_mag);
 
-			if (image_data.width == m_width && image_data.height == m_height)
-			{
-				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, image_data.format, GL_UNSIGNED_BYTE, image_data.data);
+				if (image_data.width == m_width && image_data.height == m_height)
+				{
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, image_data.format, GL_UNSIGNED_BYTE, image_data.data);
+				}
+				else
+				{
+					glTexImage2D(GL_TEXTURE_2D, 0, settings.mode, image_data.width, image_data.height, 0, image_data.format, GL_UNSIGNED_BYTE, image_data.data);
+					m_width = image_data.width;
+					m_height = image_data.height;
+				}
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
-			else
-			{
-				glTexImage2D(GL_TEXTURE_2D, 0, settings.mode, image_data.width, image_data.height, 0, image_data.format, GL_UNSIGNED_BYTE, image_data.data);
-				m_width = image_data.width;
-				m_height = image_data.height;
-			}
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-		else
+		catch(std::exception e)
 		{
-			std::cout << "Failed to load image" << std::endl;
+			std::cout << e.what();
+			std::cout << "gl_texture::Image failed to load" << std::endl;
 		}
 	}
 

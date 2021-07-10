@@ -8,7 +8,7 @@ namespace GLRender
 		const int width;
 		const int height;
 		const GLint format;
-		const unsigned char* data;
+		const unsigned char* data{ nullptr };
 	};
 
 	class Image
@@ -17,7 +17,7 @@ namespace GLRender
 		int m_width;
 		int m_height;
 		GLint m_colour_format;
-		unsigned char* m_data;
+		unsigned char* m_data{ nullptr };
 	public:
 		Image(const char* path);
 		Image(const Image&) = delete;
