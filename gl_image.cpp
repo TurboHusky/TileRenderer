@@ -8,14 +8,12 @@ namespace GLRender
 	Image::Image(const char* path)
 	{
 		int nrChannels;
-
 		stbi_set_flip_vertically_on_load(true);
 		m_data = stbi_load(path, &m_width, &m_height, &nrChannels, 0);
 
 		if (m_data == nullptr)
 		{
 			throw std::runtime_error("gl_image::Can't open file\n");
-			return;
 		}
 
 		switch (nrChannels)
@@ -40,8 +38,8 @@ namespace GLRender
 		std::cout << "Image Destructor" << std::endl;
 	}
 
-	ImageData Image::get_image_data() const
-	{
-		return { m_width, m_height, m_colour_format, m_data };
-	}
+	int Image::width() const { return m_width;  }
+	int Image::height() const { return m_height; }
+	GLint Image::colour_format() const { return m_colour_format; }
+	unsigned char* Image::data() const { return m_data; }
 }

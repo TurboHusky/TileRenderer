@@ -3,14 +3,6 @@
 
 namespace GLRender
 {
-	struct ImageData
-	{
-		const int width;
-		const int height;
-		const GLint format;
-		const unsigned char* data{ nullptr };
-	};
-
 	class Image
 	{
 	private:
@@ -26,6 +18,9 @@ namespace GLRender
 		Image& operator=(Image&&) = delete;
 		~Image();
 
-		ImageData get_image_data() const;
+		int width() const;
+		int height() const;
+		GLint colour_format() const;
+		unsigned char* data() const;
 	};
 }
