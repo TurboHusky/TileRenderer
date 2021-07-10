@@ -41,15 +41,16 @@ namespace GLRender
 	inline void VertexArray::load(const std::array<T, S>& vert, const std::vector<VertexAttribute> attributes)
 	{
 		m_vertex_count = sizeof(T) * S;
-		m_vertex_buffer.load(vert, GL_STATIC_READ);
+		m_vertex_buffer.load(vert, GL_STATIC_READ); // !! Magic number
 		m_build_vertex_array(attributes);
 	}
 
 	class VertexArrayIndexed : public VertexArray {
 	private:
-		Buffer m_element_buffer;
-		void m_attach_element_buffer();
 		GLuint m_vertex_count;
+		Buffer m_element_buffer;
+
+		void m_attach_element_buffer();
 	public:
 		VertexArrayIndexed();
 		VertexArrayIndexed(const VertexArrayIndexed&) = delete;
@@ -68,7 +69,7 @@ namespace GLRender
 	{
 		m_vertex_count = sizeof(T_e) * S_e;
 		VertexArray::load(vert, attributes);
-		m_element_buffer.load(elem, GL_STATIC_READ);
+		m_element_buffer.load(elem, GL_STATIC_READ); // !! Magic number
 		m_attach_element_buffer();
 	}
 }

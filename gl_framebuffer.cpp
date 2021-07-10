@@ -3,13 +3,23 @@
 namespace GLRender
 {
 	FrameBuffer::FrameBuffer(GLint width, GLint height, Texture::ColourMode format) :
-		m_colour_buffer{ width, height, { Texture::ColourMode::rgba, Texture::Wrap::clamp, Texture::Wrap::clamp, Texture::Filter::nearest, Texture::Filter::nearest } }
+		m_colour_buffer
+		{ 
+			width,
+			height,
+			{ 
+				Texture::ColourMode::rgba,
+				Texture::Wrap::clamp,
+				Texture::Wrap::clamp,
+				Texture::Filter::nearest,
+				Texture::Filter::nearest
+			}
+		}
 	{
 		glGenFramebuffers(1, &m_frame_buffer_ID);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, m_frame_buffer_ID);
 		m_colour_buffer.bind();
-std::cout << "FrameBuffer Constructor: " << width << " x " << height << std::endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
